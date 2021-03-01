@@ -1,0 +1,100 @@
+---
+title: "Crime in San Francisco"
+author: "Emiliano Olmedo"
+date: "1/3/2021"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## R Markdown
+
+This dataset comes from kaggle web site <https://www.kaggle.com/roshansharma/sanfranciso-crime-dataset> and I will use it to develop a data product, as final project.
+
+
+```{r cars, echo = FALSE, comment='',warning=FALSE, message=FALSE}
+library(dplyr)
+library(leaflet)
+library(plotly)
+library(tidyr)
+library(plotly)
+
+setwd('C:\\Users\\emili\\OneDrive\\Escritorio\\R\\Coursera R\\Web App\\Map')
+data <-read.csv('Police_Department_Incidents_-_Previous_Year__2016_.csv')
+#data <- as_tibble(data) %>% select(IncidntNum,Category, PdDistrict,X,Y)
+longitud <-data$X
+latitude <- data$Y
+category <- data$Category
+incidntNum <- data$IncidntNum
+districts <-data$PdDistrict
+dayoftheweek <- data$DayOfWeek
+resolution <- data$Resolution
+street<- data$Address
+
+```
+
+## Subset of Datasets and preprcessing
+
+We subset the dataset for 3 differents graphs, Crime type (df2), Crime in each district (df3) and most dangerous streets (df4), for the sake of visualization graph we have to give more importance to those cases that have more than 200 or 100 (n>200 or n>100)
+
+```{r preprocessing,echo=TRUE}
+
+PoliceData <- data.frame(latitude, longitud, category,incidntNum,districts,dayoftheweek,resolution,street)
+FinalData <- PoliceData[complete.cases(PoliceData), ]
+df <- distinct(FinalData, incidntNum, .keep_all = TRUE)
+df2 <- count(df, category, sort = TRUE)
+dfdistrict <- subset(df,districts !='')
+df3 <- count(dfdistrict,districts,sort = TRUE)
+df2 <- subset(df2,n>100)
+df4<-count(df,street,sort = F)
+dfsub<-subset(df4,n>200)
+
+
+```
+## LeafLet Map
+
+```{r leaflet, echo=TRUE, warning=FALSE}
+df[1:2000,] %>% leaflet() %>% addTiles() %>% addCircleMarkers(~longitud,~latitude,)
+
+```
+
+## Crime Type
+
+
+
+```{r leaflet1, echo=TRUE, warning=FALSE,fig.height=5, fig.width=5}
+p1<-ggplot(df2, aes(x = reorder(category, -n), y = n)) + 
+  geom_bar(stat="identity")+labs(title="Crime Histogram") + 
+  labs(x="Crime type",y="Number of Cases")+
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+(fig1<- ggplotly(p1))
+```
+
+## Amount of crime in each district
+
+```{r leaflet2, echo=TRUE, warning=FALSE,fig.height=4, fig.width=6}
+p2<-ggplot(df3, aes(x = reorder(districts, -n), y = n)) + 
+  geom_bar(stat="identity",fill='blue')+labs(title="Crime Histogram") + 
+  labs(x="District",y="Number of Cases")+
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+(fig2<- ggplotly(p2))
+```
+
+## Most Dangerous streets
+
+```{r leaflet3, echo=TRUE, warning=FALSE,fig.height=5, fig.width=6}
+p4<-ggplot(dfsub, aes(x = reorder(street, -n), y = n)) + 
+  geom_bar(stat="identity",fill ='red')+labs(title="Crime Histogram") + 
+  labs(x="Crime type",y="Number of Cases")+
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+(fig4<- ggplotly(p4))
+
+```
+
+
+
+
+
+
