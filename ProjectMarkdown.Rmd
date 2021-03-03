@@ -2,16 +2,18 @@
 title: "Crime in San Francisco"
 author: "Emiliano Olmedo"
 date: "1/3/2021"
-output: ioslides_presentation
+output:
+  
+  ioslides_presentation: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## R Markdown
+## R Subset
 
-This dataset comes from kaggle web site <https://www.kaggle.com/roshansharma/sanfranciso-crime-dataset> and I will use it to develop a data product, as final project.
+This dataset comes from kaggle web site <https://www.kaggle.com/roshansharma/sanfranciso-crime-dataset> and I will use it to develop a data product, as final project.We subset the dataset for 3 differents graphs, Crime type (df2), Crime in each district (df3) and most dangerous streets (df4), for the sake of visualization graph we have to give more importance to those cases that have more than 200 or 100 (n>200 or n>100)
 
 
 ```{r cars, echo = FALSE, comment='',warning=FALSE, message=FALSE}
@@ -35,9 +37,8 @@ street<- data$Address
 
 ```
 
-## Subset of Datasets and preprcessing
 
-We subset the dataset for 3 differents graphs, Crime type (df2), Crime in each district (df3) and most dangerous streets (df4), for the sake of visualization graph we have to give more importance to those cases that have more than 200 or 100 (n>200 or n>100)
+
 
 ```{r preprocessing,echo=TRUE}
 
@@ -56,7 +57,7 @@ dfsub<-subset(df4,n>200)
 ## LeafLet Map
 
 ```{r leaflet, echo=TRUE, warning=FALSE}
-df[1:2000,] %>% leaflet() %>% addTiles() %>% addCircleMarkers(~longitud,~latitude,)
+df[1:2000,] %>% leaflet() %>% addTiles() %>% addCircleMarkers(~longitud,~latitude,radius=3 , color="black",  fillColor="blue", stroke = TRUE, fillOpacity = 0.8, group="Blue")
 
 ```
 
@@ -82,16 +83,16 @@ p2<-ggplot(df3, aes(x = reorder(districts, -n), y = n)) +
 (fig2<- ggplotly(p2))
 ```
 
-## Most Dangerous streets
+%## Most Dangerous streets
 
-```{r leaflet3, echo=TRUE, warning=FALSE,fig.height=5, fig.width=6}
-p4<-ggplot(dfsub, aes(x = reorder(street, -n), y = n)) + 
-  geom_bar(stat="identity",fill ='red')+labs(title="Crime Histogram") + 
-  labs(x="Crime type",y="Number of Cases")+
-  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
-(fig4<- ggplotly(p4))
+%```{r leaflet3, echo=TRUE, warning=FALSE,fig.height=5, fig.width=6}
+%p4<-ggplot(dfsub, aes(x = reorder(street, -n), y = n)) + 
+%  geom_bar(stat="identity",fill ='red')+labs(title="Crime Histogram") + 
+%  labs(x="Crime type",y="Number of Cases")+
+%  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+%(fig4<- ggplotly(p4))
 
-```
+%```
 
 
 
